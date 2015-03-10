@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry including="**/*.java" kind="src" path="src/main/java"/>
+	<classpathentry kind="src" path="src/test/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="var" path="M2_REPO/junit/junit/3.8.1/junit-3.8.1.jar"/>
+	<classpathentry kind="lib" path="target/lib/ada-common-0.0.2-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="target/lib/ada-gdb-0.0.2-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="target/lib/hadoop-core-1.0.4.jar"/>
+	<classpathentry kind="lib" path="target/lib/hbase-0.94.5.jar"/>
+	<classpathentry kind="output" path="target/classes"/>
+</classpath>

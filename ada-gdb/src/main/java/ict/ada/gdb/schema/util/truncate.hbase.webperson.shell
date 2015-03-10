@@ -1,0 +1,9 @@
+
+truncate 'gdb-nodeId-webperson' 
+truncate 'gdb-nodeName-webperson' 
+truncate 'gdb-nodeWdeRefs-webperson' 
+truncate 'gdb-nodeAttr-webperson' 
+truncate 'gdb-edgeId-webperson' 
+truncate 'gdb-edgeRelWeightDetail-webperson' 
+truncate 'gdb-edgeRelWeightSum-webperson' 
+truncate 'gdb-relationWdeRefs-webperson' 

@@ -1,0 +1,54 @@
+{
+    "addl": "undified",
+    "attrs": [
+        {
+            "attK": "attK1",
+            "attVs": [
+                {
+                    "refs": [
+                        {
+                            "id": "wderef1",
+                            "len": "undified",
+                            "off": "undified",
+                            "ts": "ts1"
+                        }
+                    ],
+                    "v": "attK1V1"
+                },
+                {
+                    "refs": [
+                        {
+                            "id": "wderef2",
+                            "len": "undified",
+                            "off": "undified",
+                            "ts": "ts2"
+                        }
+                    ],
+                    "v": "attK1V2"
+                }
+            ]
+        },
+        {
+            "attK": "location",
+            "attVs": [
+                {
+                    "refs": [
+                        {
+                            "id": "wderef2",
+                            "len": "undified",
+                            "off": "undified",
+                            "ts": "ts1"
+                        }
+                    ],
+                    "v": "attK2V1"
+                }
+            ]
+        }
+    ],
+    "name": "name",
+    "sName": [
+        "sname1",
+        "sname2"
+    ],
+    "type": "type"
+}

@@ -1,0 +1,172 @@
+{
+    "addl": "San Francisco Bay Area",
+    "attrs": [
+        {
+            "attK": "title",
+            "attVs": [
+                {
+                    "refs": [
+                        {
+                            "id": "00350000000004ba",
+                            "len": "0",
+                            "off": "0",
+                            "ts": "1395364115"
+                        }
+                    ],
+                    "v": "on a well deserved break..."
+                }
+            ]
+        },
+        {
+            "attK": "location",
+            "attVs": [
+                {
+                    "refs": [
+                        {
+                            "id": "00350000000004ba",
+                            "len": "0",
+                            "off": "0",
+                            "ts": "1395364115"
+                        }
+                    ],
+                    "v": "San Francisco Bay Area"
+                }
+            ]
+        },
+        {
+            "attK": "industry",
+            "attVs": [
+                {
+                    "refs": [
+                        {
+                            "id": "00350000000004ba",
+                            "len": "0",
+                            "off": "0",
+                            "ts": "1395364115"
+                        }
+                    ],
+                    "v": "Internet"
+                }
+            ]
+        },
+        {
+            "attK": "profile_img_url",
+            "attVs": [
+                {
+                    "refs": [
+                        {
+                            "id": "00350000000004ba",
+                            "len": "0",
+                            "off": "0",
+                            "ts": "1395364115"
+                        }
+                    ],
+                    "v": "http://m.c.lnkd.licdn.com/mpr/pub/image-RwpziEJpe4pLggpL_z9nB0HHLNSRN4YL09vtPmupLdlfC_MyRwptOrWpLm1uChCWBPzE/jean-luc-vaillant.jpg"
+                }
+            ]
+        },
+        {
+            "attK": "org",
+            "attVs": [
+                {
+                    "refs": [
+                        {
+                            "id": "00350000000004ba",
+                            "len": "0",
+                            "off": "0",
+                            "ts": "1395364115"
+                        }
+                    ],
+                    "v": "CNET - France Telecom Research"
+                },
+                {
+                    "refs": [
+                        {
+                            "id": "00350000000004ba",
+                            "len": "0",
+                            "off": "0",
+                            "ts": "1395364115"
+                        }
+                    ],
+                    "v": "Fujitsu"
+                },
+                {
+                    "refs": [
+                        {
+                            "id": "00350000000004ba",
+                            "len": "0",
+                            "off": "0",
+                            "ts": "1395364115"
+                        }
+                    ],
+                    "v": "LinkedIn"
+                },
+                {
+                    "refs": [
+                        {
+                            "id": "00350000000004ba",
+                            "len": "0",
+                            "off": "0",
+                            "ts": "1395364115"
+                        }
+                    ],
+                    "v": "Logitech"
+                },
+                {
+                    "refs": [
+                        {
+                            "id": "00350000000004ba",
+                            "len": "0",
+                            "off": "0",
+                            "ts": "1395364115"
+                        }
+                    ],
+                    "v": "Socialnet.com"
+                },
+                {
+                    "refs": [
+                        {
+                            "id": "00350000000004ba",
+                            "len": "0",
+                            "off": "0",
+                            "ts": "1395364115"
+                        }
+                    ],
+                    "v": "Sophis"
+                },
+                {
+                    "refs": [
+                        {
+                            "id": "00350000000004ba",
+                            "len": "0",
+                            "off": "0",
+                            "ts": "1395364115"
+                        }
+                    ],
+                    "v": "Spotlife, Inc"
+                }
+            ]
+        },
+        {
+            "attK": "school",
+            "attVs": [
+                {
+                    "refs": [
+                        {
+                            "id": "00350000000004ba",
+                            "len": "0",
+                            "off": "0",
+                            "ts": "1395364115"
+                        }
+                    ],
+                    "v": "Telecom ParisTech"
+                }
+            ]
+        }
+    ],
+    "name": "1210",
+    "sName": [
+        "Jean-Luc Vaillant"
+    ],
+    "type": "002053"
+}
