@@ -11,7 +11,8 @@
 		<module>ada-common</module>
 		<module>ada-search</module>
 		<module>ada-gdb-rest</module>
-  </modules>
+		<module>ada-gdb-compute</module>
+	</modules>
 
 	<!-- common dependencies in all modules -->
 	<dependencyManagement>
