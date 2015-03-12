@@ -18,10 +18,9 @@
 
 package ict.ada.gdb.compute.io;
 
-import org.apache.giraph.conf.ImmutableClassesGiraphConfigurable;
+import org.apache.giraph.conf.DefaultImmutableClassesGiraphConfigurable;
 import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
 import org.apache.giraph.edge.Edge;
-import org.apache.giraph.graph.GraphState;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.graph.VertexChanges;
 import org.apache.giraph.graph.VertexResolver;
@@ -36,29 +35,24 @@ import org.apache.log4j.Logger;
  * @param <I> Vertex id
  * @param <V> Vertex data
  * @param <E> Edge data
- * @param <M> Message data
  */
 @SuppressWarnings("rawtypes")
 public class DefaultVertexResolver<I extends WritableComparable,
-    V extends Writable, E extends Writable, M extends Writable>
-    implements VertexResolver<I, V, E, M>,
-    ImmutableClassesGiraphConfigurable<I, V, E, M> {
+    V extends Writable, E extends Writable>
+    extends DefaultImmutableClassesGiraphConfigurable<I, V, E>
+    implements VertexResolver<I, V, E> {
   /** Class logger */
   private static final Logger LOG = Logger.getLogger(
       DefaultVertexResolver.class);
-  /** Configuration */
-  private ImmutableClassesGiraphConfiguration<I, V, E, M> conf = null;
-  /** Stored graph state */
-  private GraphState<I, V, E, M> graphState;
 
   /** Whether to create vertices when they receive a message */
   private boolean createVertexesOnMessages = true;
 
   @Override
-  public Vertex<I, V, E, M> resolve(
+  public Vertex<I, V, E> resolve(
       I vertexId,
-      Vertex<I, V, E, M> vertex,
-      VertexChanges<I, V, E, M> vertexChanges,
+      Vertex<I, V, E> vertex,
+      VertexChanges<I, V, E> vertexChanges,
       boolean hasMessages) {
     // This is the default vertex resolution algorithm
 
@@ -84,8 +78,8 @@ public class DefaultVertexResolver<I extends WritableComparable,
    * @param vertex Vertex to remove edges from
    * @param vertexChanges contains list of edges to remove.
    */
-  protected void removeEdges(Vertex<I, V, E, M> vertex,
-                             VertexChanges<I, V, E, M> vertexChanges) {
+  protected void removeEdges(Vertex<I, V, E> vertex,
+                             VertexChanges<I, V, E> vertexChanges) {
     if (vertex == null) {
       return;
     }
@@ -105,9 +99,9 @@ public class DefaultVertexResolver<I extends WritableComparable,
    * @param vertexChanges specifies if we should remove vertex
    * @return null if vertex should be removed, otherwise the vertex itself.
    */
-  protected Vertex<I, V, E, M> removeVertexIfDesired(
-      Vertex<I, V, E, M> vertex,
-      VertexChanges<I, V, E, M> vertexChanges) {
+  protected Vertex<I, V, E> removeVertexIfDesired(
+      Vertex<I, V, E> vertex,
+      VertexChanges<I, V, E> vertexChanges) {
     if (hasVertexRemovals(vertexChanges)) {
       vertex = null;
     }
@@ -124,18 +118,17 @@ public class DefaultVertexResolver<I extends WritableComparable,
    * @param hasMessages true if this vertex received any messages
    * @return Vertex created or passed in, or null if no vertex should be added
    */
-  protected Vertex<I, V, E, M> addVertexIfDesired(
+  protected Vertex<I, V, E> addVertexIfDesired(
       I vertexId,
-      Vertex<I, V, E, M> vertex,
-      VertexChanges<I, V, E, M> vertexChanges,
+      Vertex<I, V, E> vertex,
+      VertexChanges<I, V, E> vertexChanges,
       boolean hasMessages) {
     if (vertex == null) {
       if (hasVertexAdditions(vertexChanges)) {
         vertex = vertexChanges.getAddedVertexList().get(0);
       } else if ((hasMessages && createVertexesOnMessages) ||
                  hasEdgeAdditions(vertexChanges)) {
-        vertex = conf.createVertex();
-        vertex.setGraphState(graphState);
+        vertex = getConf().createVertex();
         vertex.initialize(vertexId, getConf().createVertexValue());
       }
     } else if (hasVertexAdditions(vertexChanges)) {
@@ -152,8 +145,8 @@ public class DefaultVertexResolver<I extends WritableComparable,
    * @param vertex Vertex to add edges to
    * @param vertexChanges contains edges to add
    */
-  protected void addEdges(Vertex<I, V, E, M> vertex,
-                          VertexChanges<I, V, E, M> vertexChanges) {
+  protected void addEdges(Vertex<I, V, E> vertex,
+                          VertexChanges<I, V, E> vertexChanges) {
     if (vertex == null) {
       return;
     }
@@ -170,7 +163,7 @@ public class DefaultVertexResolver<I extends WritableComparable,
    * @param changes VertexChanges to check
    * @return true if changes contains vertex removal requests
    */
-  protected  boolean hasVertexRemovals(VertexChanges<I, V, E, M> changes) {
+  protected  boolean hasVertexRemovals(VertexChanges<I, V, E> changes) {
     return changes != null && changes.getRemovedVertexCount() > 0;
   }
 
@@ -180,7 +173,7 @@ public class DefaultVertexResolver<I extends WritableComparable,
    * @param changes VertexChanges to check
    * @return true if changes contains vertex addition requests
    */
-  protected boolean hasVertexAdditions(VertexChanges<I, V, E, M> changes) {
+  protected boolean hasVertexAdditions(VertexChanges<I, V, E> changes) {
     return changes != null && !changes.getAddedVertexList().isEmpty();
   }
 
@@ -190,7 +183,7 @@ public class DefaultVertexResolver<I extends WritableComparable,
    * @param changes VertexChanges to check
    * @return true if changes contains edge addition requests
    */
-  protected boolean hasEdgeAdditions(VertexChanges<I, V, E, M> changes) {
+  protected boolean hasEdgeAdditions(VertexChanges<I, V, E> changes) {
     return changes != null && !changes.getAddedEdgeList().isEmpty();
   }
 
@@ -200,28 +193,13 @@ public class DefaultVertexResolver<I extends WritableComparable,
    * @param changes VertexChanges to check
    * @return true if changes contains edge removal requests
    */
-  protected boolean hasEdgeRemovals(VertexChanges<I, V, E, M> changes) {
+  protected boolean hasEdgeRemovals(VertexChanges<I, V, E> changes) {
     return changes != null && !changes.getRemovedEdgeList().isEmpty();
   }
 
   @Override
-  public ImmutableClassesGiraphConfiguration<I, V, E, M> getConf() {
-    return conf;
-  }
-
-  @Override
-  public void setConf(ImmutableClassesGiraphConfiguration<I, V, E, M> conf) {
-    this.conf = conf;
+  public void setConf(ImmutableClassesGiraphConfiguration<I, V, E> conf) {
+    super.setConf(conf);
     createVertexesOnMessages = conf.getResolverCreateVertexOnMessages();
-  }
-
-  @Override
-  public GraphState<I, V, E, M> getGraphState() {
-    return graphState;
-  }
-
-  @Override
-  public void setGraphState(GraphState<I, V, E, M> graphState) {
-    this.graphState = graphState;
   }
 }

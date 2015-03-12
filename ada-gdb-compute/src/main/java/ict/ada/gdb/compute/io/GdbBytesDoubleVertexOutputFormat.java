@@ -50,7 +50,7 @@ public class GdbBytesDoubleVertexOutputFormat extends
     TextVertexWriterToEachLine {
 	@Override
 	protected Text convertVertexToLine(
-			Vertex<BytesWritable, DoubleWritable, FloatWritable, ?> vertex)
+			Vertex<BytesWritable, DoubleWritable, FloatWritable> vertex)
 			throws IOException {
 		return new Text(StringUtils.byteToHexString(vertex.getId().getBytes())+'\t'+vertex.getValue());
 	}

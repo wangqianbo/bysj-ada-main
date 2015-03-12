@@ -1,7 +1,6 @@
 package ict.ada.gdb.compute.io;
 
 import ict.ada.common.model.RelationGraph;
-import ict.ada.gdb.common.AdaModeConfig;
 import ict.ada.gdb.common.GdbException;
 import ict.ada.gdb.common.RelQuerySpec;
 import ict.ada.gdb.service.AdaGdbService;
@@ -20,6 +19,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.util.StringUtils;
+import org.apache.log4j.Logger;
 import org.javatuples.Pair;
 
 import com.google.common.collect.Lists;
@@ -31,7 +31,7 @@ import com.google.common.collect.Lists;
  */
 public class GDBBytesDoubleVertexInputFormat extends
 		TextVertexInputFormat<BytesWritable, DoubleWritable, FloatWritable> {
-
+	 private static final Logger LOG = Logger.getLogger(GDBBytesDoubleVertexInputFormat.class);
 	@Override
 	public TextVertexReader createVertexReader(InputSplit split,
 			TaskAttemptContext context) throws IOException {
@@ -75,9 +75,11 @@ public class GDBBytesDoubleVertexInputFormat extends
 		protected Iterable<Edge<BytesWritable, FloatWritable>> getEdges(
 				Pair<byte[],Double> vertex) throws GdbException, IOException {
 			ict.ada.common.model.Node  node = new ict.ada.common.model.Node(vertex.getValue0());
+			LOG.info("Node Id = "+ StringUtils.byteToHexString(node.getId()));
 			 RelQuerySpec.RelQuerySpecBuilder specBuilder = new RelQuerySpec.RelQuerySpecBuilder(node)
 		        .attribute(node.getType().getAttribute());
 			RelationGraph edgeList = adaGdbService.queryRelationGraph(specBuilder.build());
+			LOG.info("EdgeList size = "+ edgeList.getOuterNodes().size());
 			List<Edge<BytesWritable, FloatWritable>> edges =
 			          Lists.newArrayListWithCapacity(edgeList.getOuterNodes().size());
 			for(ict.ada.common.model.Node adj : edgeList.getOuterNodes()){
@@ -86,8 +88,7 @@ public class GDBBytesDoubleVertexInputFormat extends
 			return edges;
 		}
 		 @Override
-		    protected Vertex<BytesWritable, DoubleWritable, FloatWritable,
-		              DoubleWritable> handleException(Text line, Pair<byte[],Double> vertex,
+		    protected Vertex<BytesWritable, DoubleWritable, FloatWritable> handleException(Text line, Pair<byte[],Double> vertex,
 		            		  GdbException e) {
 		      throw new IllegalArgumentException(
 		          "Couldn't get vertex from line " + line, e);

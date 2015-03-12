@@ -18,10 +18,13 @@
 
 package ict.ada.gdb.compute.io;
 
+import java.io.IOException;
+
 import org.apache.giraph.Algorithm;
 import org.apache.giraph.aggregators.DoubleMaxAggregator;
 import org.apache.giraph.aggregators.DoubleMinAggregator;
 import org.apache.giraph.aggregators.LongSumAggregator;
+import org.apache.giraph.graph.BasicComputation;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.master.DefaultMasterCompute;
 import org.apache.giraph.worker.WorkerContext;
@@ -35,15 +38,15 @@ import org.apache.log4j.Logger;
  * Demonstrates the basic Pregel PageRank implementation.
  */
 @Algorithm(
-    name = "Trust rank"
+    name = "Page rank"
 )
-public class TrustRankVertex extends Vertex<BytesWritable,
+public class TrustRankComputation extends BasicComputation<BytesWritable,
     DoubleWritable, FloatWritable, DoubleWritable> {
   /** Number of supersteps for this test */
   public static final int MAX_SUPERSTEPS = 30;
   /** Logger */
   private static final Logger LOG =
-      Logger.getLogger(TrustRankVertex.class);
+      Logger.getLogger(TrustRankComputation.class);
   /** Sum aggregator name */
   private static String SUM_AGG = "sum";
   /** Min aggregator name */
@@ -52,35 +55,38 @@ public class TrustRankVertex extends Vertex<BytesWritable,
   private static String MAX_AGG = "max";
 
   @Override
-  public void compute(Iterable<DoubleWritable> messages) {
+  public void compute(
+      Vertex<BytesWritable, DoubleWritable, FloatWritable> vertex,
+      Iterable<DoubleWritable> messages) throws IOException {
     if (getSuperstep() >= 1) {
       double sum = 0;
       for (DoubleWritable message : messages) {
         sum += message.get();
       }
-      DoubleWritable vertexValue =new DoubleWritable(sum);
-      setValue(vertexValue);
+      DoubleWritable vertexValue =
+          new DoubleWritable(sum);
+      vertex.setValue(vertexValue);
       aggregate(MAX_AGG, vertexValue);
       aggregate(MIN_AGG, vertexValue);
       aggregate(SUM_AGG, new LongWritable(1));
-      LOG.info(getId() + ":TrustRank=" + vertexValue +
+      LOG.info(vertex.getId() + ": TrustRank=" + vertexValue +
           " max=" + getAggregatedValue(MAX_AGG) +
           " min=" + getAggregatedValue(MIN_AGG));
     }
 
     if (getSuperstep() < MAX_SUPERSTEPS) {
-      long edges = getNumEdges();
-      sendMessageToAllEdges(
-          new DoubleWritable(getValue().get() / edges));
+      long edges = vertex.getNumEdges();
+      sendMessageToAllEdges(vertex,
+          new DoubleWritable(vertex.getValue().get() / edges));
     } else {
-      voteToHalt();
+      vertex.voteToHalt();
     }
   }
 
   /**
-   * Worker context used with {@link TrustRankVertex}.
+   * Worker context used with {@link TrustRankComputation}.
    */
-  public static class SimpleTrustRankVertexWorkerContext extends
+  public static class SimpleTrustRankWorkerContext extends
       WorkerContext {
     /** Final max value for verification for local jobs */
     private static double FINAL_MAX;
@@ -113,8 +119,8 @@ public class TrustRankVertex extends Vertex<BytesWritable,
       FINAL_MIN = this.<DoubleWritable>getAggregatedValue(MIN_AGG).get();
 
       LOG.info("aggregatedNumVertices=" + FINAL_SUM);
-      LOG.info("aggregatedMaxTrustRank=" + FINAL_MAX);
-      LOG.info("aggregatedMinTrustRank=" + FINAL_MIN);
+      LOG.info("aggregatedMaxPageRank=" + FINAL_MAX);
+      LOG.info("aggregatedMinPageRank=" + FINAL_MIN);
     }
 
     @Override
@@ -130,9 +136,9 @@ public class TrustRankVertex extends Vertex<BytesWritable,
               getTotalNumVertices());
         }
         DoubleWritable maxPagerank = getAggregatedValue(MAX_AGG);
-        LOG.info("aggregatedMaxTrustRank=" + maxPagerank.get());
+        LOG.info("aggregatedMaxPageRank=" + maxPagerank.get());
         DoubleWritable minPagerank = getAggregatedValue(MIN_AGG);
-        LOG.info("aggregatedMinTrustRank=" + minPagerank.get());
+        LOG.info("aggregatedMinPageRank=" + minPagerank.get());
       }
     }
 
@@ -140,19 +146,5 @@ public class TrustRankVertex extends Vertex<BytesWritable,
     public void postSuperstep() { }
   }
 
-  /**
-   * Master compute associated with {@link TrustRankVertex}.
-   * It registers required aggregators.
-   */
-  public static class SimpleTrustVertexMasterCompute extends
-      DefaultMasterCompute {
-    @Override
-    public void initialize() throws InstantiationException,
-        IllegalAccessException {
-      registerAggregator(SUM_AGG, LongSumAggregator.class);
-      registerPersistentAggregator(MIN_AGG, DoubleMinAggregator.class);
-      registerPersistentAggregator(MAX_AGG, DoubleMaxAggregator.class);
-    }
-  }
-
+ 
 }

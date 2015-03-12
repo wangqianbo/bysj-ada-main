@@ -1,5 +1,6 @@
 package ict.ada.gdb.compute.io;
 
+import java.util.Arrays;
 import java.util.List;
 
 import ict.ada.common.model.RelationGraph;
@@ -16,11 +17,12 @@ import org.apache.giraph.graph.VertexChanges;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.FloatWritable;
+import org.apache.hadoop.util.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.google.common.collect.Lists;
 
-public class GdbVertexResolver extends DefaultVertexResolver<BytesWritable, DoubleWritable, FloatWritable, DoubleWritable> {
+public class GdbVertexResolver extends DefaultVertexResolver<BytesWritable, DoubleWritable, FloatWritable> {
 	 public static final  AdaGdbService adaGdbService = new AdaGdbService(AdaModeConfig.GDBMode.QUERY);
 	  private boolean createVertexesOnMessages = true;
 //	  private ImmutableClassesGiraphConfiguration<BytesWritable, DoubleWritable, FloatWritable, DoubleWritable> conf = null;
@@ -41,39 +43,41 @@ public class GdbVertexResolver extends DefaultVertexResolver<BytesWritable, Doub
 	   * @return Vertex created or passed in, or null if no vertex should be added
 	   */
 	@Override
-	  protected Vertex<BytesWritable, DoubleWritable, FloatWritable, DoubleWritable> addVertexIfDesired(
+	  protected Vertex<BytesWritable, DoubleWritable, FloatWritable> addVertexIfDesired(
 		 BytesWritable vertexId,
-	      Vertex<BytesWritable, DoubleWritable, FloatWritable, DoubleWritable> vertex,
-	      VertexChanges<BytesWritable, DoubleWritable, FloatWritable, DoubleWritable> vertexChanges,
+	      Vertex<BytesWritable, DoubleWritable, FloatWritable> vertex,
+	      VertexChanges<BytesWritable, DoubleWritable, FloatWritable> vertexChanges,
 	      boolean hasMessages) {
 	    if (vertex == null) {
-	      if (hasVertexAdditions(vertexChanges)) {
-	        vertex = vertexChanges.getAddedVertexList().get(0);
-	      } else if ((hasMessages && createVertexesOnMessages) ||
-	                 hasEdgeAdditions(vertexChanges)) {
-	        vertex = getConf().createVertex();
-	        vertex.setGraphState(getGraphState());
-	        ict.ada.common.model.Node  node = new ict.ada.common.model.Node(vertexId.getBytes());
-			 RelQuerySpec.RelQuerySpecBuilder specBuilder = new RelQuerySpec.RelQuerySpecBuilder(node)
-		        .attribute(node.getType().getAttribute());
-			RelationGraph edgeList = null;
-			try {
-				edgeList = adaGdbService.queryRelationGraph(specBuilder.build());
-			} catch (GdbException e) {
-				throw new RuntimeException(e);
-			}
-			List<Edge<BytesWritable, FloatWritable>> edges =
-			          Lists.newArrayListWithCapacity(edgeList.getOuterNodes().size());
-			for(ict.ada.common.model.Node adj : edgeList.getOuterNodes()){
-				edges.add(EdgeFactory.create(new BytesWritable(adj.getId()),new FloatWritable(0)));
-			}
-	        vertex.initialize(vertexId, getConf().createVertexValue(),edges);
+	        if (hasVertexAdditions(vertexChanges)) {
+	          vertex = vertexChanges.getAddedVertexList().get(0);
+	        } else if ((hasMessages && createVertexesOnMessages) ||
+	                   hasEdgeAdditions(vertexChanges)) {
+	        		vertex = getConf().createVertex();
+//	       	        vertex.setGraphState(getGraphState());
+	        		byte[] id = Arrays.copyOf(vertexId.getBytes(), vertexId.getLength());
+	        		LOG.info("Add Node Id = " + StringUtils.byteToHexString(id));
+	    	        ict.ada.common.model.Node  node = new ict.ada.common.model.Node(id);
+	    			 RelQuerySpec.RelQuerySpecBuilder specBuilder = new RelQuerySpec.RelQuerySpecBuilder(node)
+	    		        .attribute(node.getType().getAttribute());
+	    			RelationGraph edgeList = null;
+	    			try {
+	    				edgeList = adaGdbService.queryRelationGraph(specBuilder.build());
+	    				LOG.info("Result Size  = " + edgeList.getOuterNodes().size());
+	    			} catch (GdbException e) {
+	    				throw new RuntimeException(e);
+	    			}
+	    			List<Edge<BytesWritable, FloatWritable>> edges =
+	    			          Lists.newArrayListWithCapacity(edgeList.getOuterNodes().size());
+	    			for(ict.ada.common.model.Node adj : edgeList.getOuterNodes()){
+	    				edges.add(EdgeFactory.create(new BytesWritable(adj.getId()),new FloatWritable(0)));
+	    			}
+	    	        vertex.initialize(vertexId, getConf().createVertexValue(),edges);}
+	      } else if (hasVertexAdditions(vertexChanges)) {
+	        LOG.warn("resolve: Tried to add a vertex with id = " +
+	            vertex.getId() + " when one already " +
+	            "exists.  Ignoring the add vertex request.");
 	      }
-	    } else if (hasVertexAdditions(vertexChanges)) {
-	      LOG.warn("resolve: Tried to add a vertex with id = " +
-	          vertex.getId() + " when one already " +
-	          "exists.  Ignoring the add vertex request.");
+	      return vertex;
 	    }
-	    return vertex;
-	  }
 }
