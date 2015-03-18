@@ -144,6 +144,14 @@ public List<Pair<Integer,NodeAttribute>> getNodeActionAttrWdeRefs(Node node,Stri
   public String getNodeNameById(byte[] id, NodeType type) throws GdbException {
     return nodeDAO.getNodeNameById(id, type);
   }
+  
+  /**
+   * Computation Query
+ * @throws GdbException 
+   * */
+  public byte[] getNodeComputationValue(byte[] id,String computation) throws GdbException{
+	  return nodeDAO.getNodeComputeValue(id, computation);
+  }
   public Node getNodeEntsById(byte[] id) throws GdbException{
 	  return nodeDAO.getNodeEntsById(id);
   }

@@ -182,4 +182,10 @@ public class AdaGdbService {
   public Map<String, byte[]> getRelationTypeV1(Channel channel) throws GdbException  {
     return internalGdb.getRelationTypeV1(channel);
   }
+  /**
+   * Computation Query
+   * */
+  public byte[] getNodeComputationValue(byte[] id,String computation) throws GdbException{
+	  return internalGdb.getNodeComputationValue(id, computation);
+}
 }

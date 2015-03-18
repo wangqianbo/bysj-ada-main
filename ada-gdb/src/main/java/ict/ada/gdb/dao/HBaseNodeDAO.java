@@ -1673,6 +1673,24 @@ public List<Pair<Integer,NodeAttribute>> getNodeActionAttrWdeRefs(Node node,Stri
 	    return node;
 	  
   }
+  //TODO 会导致接口失效
+  public byte[] getNodeComputeValue(byte[] id, String computation) throws GdbException {
+	  Node node = new Node(id);
+	  HTableInterface hiIdTable = pool.getNodeIdTable(node.getType());
+	  try {
+	  Get get = new Get(id);
+      get.addColumn(Bytes.toBytes(NodeIdHTable.FAMILY), Bytes.toBytes(computation));
+      Result result = hiIdTable.get(get);
+      byte[] val = result.getValue(Bytes.toBytes(NodeIdHTable.FAMILY), Bytes.toBytes(computation));
+      return val;
+	} catch (IOException e) {
+		  throw new GdbException(e);
+	}finally{
+		closeHTable(hiIdTable);
+	}
+      
+  }
+  
   private Node getNodeAttributesById(HTableInterface hiAttrTable, Node node,boolean loadInfo) throws GdbException {
     if(loadInfo)return getNodeAttributesById(hiAttrTable,node);
     byte[] id = node.getId();
