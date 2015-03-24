@@ -1,4 +1,4 @@
-package ict.ada.gdb.compute.io;
+package ict.ada.gdb.util;
 
 import org.apache.hadoop.hbase.util.Bytes;
 import org.javatuples.Pair;

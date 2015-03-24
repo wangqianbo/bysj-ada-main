@@ -1,16 +1,5 @@
 package ict.ada.gdb.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import ict.ada.common.model.Edge;
 import ict.ada.common.model.Node;
 import ict.ada.common.model.NodeAttribute;
@@ -28,6 +17,7 @@ import ict.ada.gdb.common.GdbException;
 import ict.ada.gdb.common.PathQuerySpec;
 import ict.ada.gdb.common.RelQuerySpec;
 import ict.ada.gdb.common.TimeRange;
+import ict.ada.gdb.dao.ComputationScheduler;
 import ict.ada.gdb.dao.HBaseAggregationDao;
 import ict.ada.gdb.dao.HBaseDAOFactory;
 import ict.ada.gdb.dao.HBaseEdgeDAO;
@@ -35,6 +25,18 @@ import ict.ada.gdb.dao.HBaseNodeDAO;
 import ict.ada.gdb.rowcounter.TableRowCount;
 import ict.ada.gdb.util.NodeIdConveter;
 import ict.ada.gdb.util.ParallelTask;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Define basic graph operations.<br>
@@ -47,7 +49,7 @@ public class InternalGraphDB {
   private HBaseNodeDAO nodeDAO;
   private HBaseEdgeDAO edgeDAO;
   private HBaseAggregationDao aggregationDao;
-  
+  private ComputationScheduler scheduler;
   private final ExecutorService exec;
 
   // private HBaseWdeDAO wdeDAO;
@@ -56,7 +58,7 @@ public class InternalGraphDB {
     nodeDAO = HBaseDAOFactory.getHBaseNodeDAO();
     edgeDAO = HBaseDAOFactory.getHBaseEdgeDAO();
     aggregationDao = HBaseDAOFactory.getHBaseAggregationDao();
-    
+    scheduler = HBaseDAOFactory.getComputationScheduler();
     // wdeDAO = HBaseDAOFactory.getHBaseWdeDAO();
     exec = Executors.newCachedThreadPool();
   }
@@ -95,7 +97,18 @@ public class InternalGraphDB {
     // Now, Nodes in Edge should carry id information, which is essential for Edge addition below.
     edgeDAO.addDirectedEdge(edge);
   }
-
+  
+  public void addEdgeWithComputation(Edge edge) throws GdbException{
+	    if (ignoreEdge(edge)) return;
+	    if (edge.getHead().getId() == null) {
+	      this.addNode(edge.getHead());
+	    }
+	    if (edge.getTail().getId() == null) {
+	      this.addNode(edge.getTail());
+	    }
+	    // Now, Nodes in Edge should carry id information, which is essential for Edge addition below.
+	    edgeDAO.addDirectedEdgeWithComputation(edge);
+  }
   /**
    * Add one directed Edge and its two Nodes.
    * 
@@ -376,5 +389,8 @@ public List<Pair<String, List<String>>> getNodeNameAndSnameByIdBatched(List<byte
   }
   public Map<String,byte[]> getRelationTypeV1(Channel channel) throws GdbException{
 	  return edgeDAO.getRelationTypes(channel);
+  }
+  public boolean schedule(long ts,Channel channel) throws IOException, GdbException{
+	  return scheduler.schedule(ts, channel);
   }
 }

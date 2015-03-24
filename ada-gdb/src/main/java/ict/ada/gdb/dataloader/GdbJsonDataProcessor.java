@@ -146,7 +146,8 @@ class DefaultDataOpHandler implements DataOpHandler {
       break;
     case ADD_EDGE:
       Edge edge = (Edge) dataOp.getData();
-      gdb.addEdge(edge);
+//      gdb.addEdge(edge);
+      gdb.addEdgeWithComputation(edge);
       break;
     default:
       throw new IllegalStateException("Unknown DataOpType");

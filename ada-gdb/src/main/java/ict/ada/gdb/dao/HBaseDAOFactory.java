@@ -48,5 +48,8 @@ public class HBaseDAOFactory {
 
   public static HBaseAggregationDao getHBaseAggregationDao() {
     return new HBaseAggregationDao(pool);
+ }
+  public static ComputationScheduler getComputationScheduler(){
+	  return new ComputationScheduler(pool);
   }
 }

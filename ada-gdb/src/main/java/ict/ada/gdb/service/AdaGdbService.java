@@ -18,6 +18,7 @@ import ict.ada.gdb.common.RelQuerySpec;
 import ict.ada.gdb.common.TimeRange;
 import ict.ada.gdb.rowcounter.TableRowCount;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -60,7 +61,9 @@ public class AdaGdbService {
   public void addEdge(Edge edge) throws GdbException {
     internalGdb.addEdge(edge);
   }
-
+  public void addEdgeWithComputation(Edge edge) throws GdbException{
+	  internalGdb.addEdgeWithComputation(edge);
+}
   public void addEdgeAndNodes(Edge edge) throws GdbException {
     internalGdb.addEdgeAndNodes(edge);
   }
@@ -188,4 +191,8 @@ public class AdaGdbService {
   public byte[] getNodeComputationValue(byte[] id,String computation) throws GdbException{
 	  return internalGdb.getNodeComputationValue(id, computation);
 }
+  public boolean schedule(long ts,Channel channel) throws IOException, GdbException{
+	  return internalGdb.schedule(ts, channel);
+  }
+  
 }

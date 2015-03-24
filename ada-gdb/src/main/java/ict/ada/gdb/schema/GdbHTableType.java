@@ -14,13 +14,13 @@ public enum GdbHTableType {
   NODE_NAME("nodeName"), //
   NODE_WDEREFS("nodeWdeRefs"), //
   NODE_ATTR("nodeAttr"), //
-
+  NODE_TASK("nodeTask"),
   // Edge
   EDGE_ID("edgeId"), //
   EDGE_REL_WEIGHT_DETAIL("edgeRelWeightDetail"), //
   EDGE_REL_WEIGHT_SUM("edgeRelWeightSum"), //
   RELATION_WDEREFS("relationWdeRefs"), //
-  
+  EDGE_MEM("edgeMem"),
   // Others
   LOCATION_NODE_TASKS("locationNodeTasks"),
   

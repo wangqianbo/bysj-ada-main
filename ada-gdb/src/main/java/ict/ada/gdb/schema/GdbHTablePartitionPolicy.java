@@ -22,6 +22,7 @@ public class GdbHTablePartitionPolicy {
     case NODE_ATTR:
     case NODE_WDEREFS:
     case NODE_ID:
+    case NODE_TASK:	
       return GdbHTableConstant.SHARED_PREFIX + "-" + tableType.getContentTag() + "-"
           + getPartitionName(type)+"-"+getDBVersionName(type);
 
@@ -29,6 +30,7 @@ public class GdbHTablePartitionPolicy {
     case EDGE_REL_WEIGHT_DETAIL:
     case EDGE_REL_WEIGHT_SUM:
     case RELATION_WDEREFS:
+    case EDGE_MEM:
       throw new RuntimeException(
           "BUGS in code. Edge related Tables should not call getNodeRelatedHTableName()");
     default:
@@ -55,6 +57,7 @@ public class GdbHTablePartitionPolicy {
     case NODE_ATTR:
     case NODE_WDEREFS:
     case NODE_ID:
+    case NODE_TASK:	
       throw new RuntimeException(
           "BUGS in code. Node related Tables should not call getEdgeRelatedHTableName()");
 
@@ -62,6 +65,7 @@ public class GdbHTablePartitionPolicy {
     case EDGE_REL_WEIGHT_DETAIL:
     case EDGE_REL_WEIGHT_SUM:
     case RELATION_WDEREFS:
+    case EDGE_MEM:
       return GdbHTableConstant.SHARED_PREFIX + "-" + tableType.getContentTag() + "-"
           + getPartitionName(type)+"-"+getDBVersionName(type);
     case RELATION_TYPE:
@@ -181,6 +185,7 @@ public class GdbHTablePartitionPolicy {
           case NODE_ATTR:
           case NODE_WDEREFS:
           case NODE_ID:
+          case NODE_TASK:	
             nameList.add(GdbHTablePartitionPolicy.getNodeRelatedHTableName(tableType, channel));
             break;
 
@@ -188,6 +193,7 @@ public class GdbHTablePartitionPolicy {
           case EDGE_REL_WEIGHT_DETAIL:
           case EDGE_REL_WEIGHT_SUM:
           case RELATION_WDEREFS:
+          case EDGE_MEM:
             nameList.add(GdbHTablePartitionPolicy.getEdgeRelatedHTableNameWithoutAggType(tableType, channel));
             break;
           case LOCATION_NODE_TASKS:

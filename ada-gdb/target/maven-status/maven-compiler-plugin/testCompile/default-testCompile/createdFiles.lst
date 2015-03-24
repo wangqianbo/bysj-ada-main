@@ -1,1 +1,9 @@
+ict\ada\gdb\dao\GetName.class
+ict\ada\gdb\common\AdaModeConfigTest.class
 ict\ada\gdb\dataloader\TestJsonDataProcessor$2.class
+ict\ada\gdb\dataloader\TestJsonDataProcessor.class
+ict\ada\gdb\dataloader\TestJsonDataProcessor$1.class
+ict\ada\gdb\common\BytesTest.class
+ict\ada\gdb\dao\Test.class
+ict\ada\gdb\dao\WikiQueryTest.class
+ict\ada\gdb\dataloader\Test.class

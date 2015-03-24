@@ -28,10 +28,12 @@ import org.apache.giraph.graph.BasicComputation;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.master.DefaultMasterCompute;
 import org.apache.giraph.worker.WorkerContext;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.util.StringUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -69,7 +71,7 @@ public class TrustRankComputation extends BasicComputation<BytesWritable,
       aggregate(MAX_AGG, vertexValue);
       aggregate(MIN_AGG, vertexValue);
       aggregate(SUM_AGG, new LongWritable(1));
-      LOG.info(vertex.getId() + ": TrustRank=" + vertexValue +
+      LOG.info(StringUtils.byteToHexString(Bytes.head(vertex.getId().getBytes(),vertex.getId().getLength())) + ": TrustRank=" + vertexValue +
           " max=" + getAggregatedValue(MAX_AGG) +
           " min=" + getAggregatedValue(MIN_AGG));
     }

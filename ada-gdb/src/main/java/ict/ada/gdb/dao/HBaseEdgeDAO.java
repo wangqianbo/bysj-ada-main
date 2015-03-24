@@ -24,6 +24,7 @@ import ict.ada.gdb.common.SortedWdeRefSet;
 import ict.ada.gdb.common.TimeRange;
 import ict.ada.gdb.coprocessor.HBaseEdgeDaoProtocol;
 import ict.ada.gdb.schema.EdgeIdHTable;
+import ict.ada.gdb.schema.EdgeMemTable;
 import ict.ada.gdb.schema.EdgeRelWeightDetailHTable;
 import ict.ada.gdb.schema.EdgeRelWeightSumHTable;
 import ict.ada.gdb.schema.GdbHTableConstant;
@@ -126,7 +127,18 @@ public class HBaseEdgeDAO {
       throw new GdbException(ioe);
     }
   }
-
+  public void addDirectedEdgeWithComputation(Edge edge) throws GdbException {
+	    if (edge == null) throw new NullPointerException("null Edge");
+	    try {
+	      if (edge.getRelations().size() != 0) {
+	        for (Relation rel : edge.getRelations()) {
+	        	addRealtionWithComputation(rel);
+	        }
+	      }
+	    } catch (IOException ioe) {
+	      throw new GdbException(ioe);
+	    }
+	  }
   private static final byte[] EMPTY_VALUE = new byte[0];
   private static final byte[] EMPTY_QUALIFIER = new byte[0];
 
@@ -372,7 +384,21 @@ public class HBaseEdgeDAO {
       addRelationWdeRefs(rel);
     }
   }
-
+  private void addRealtionWithComputation(Relation rel) throws IOException{
+		Edge relParent = rel.getParentEdge();
+	    NodeType edgeHeadType = rel.getParentEdgeHeadNodeType();
+	    byte[] relTypeCol = rel.getType().getBytesForm();
+	    // Increment weight sum
+	    HTableInterface edgeMemTable = pool.getEdgeMemTable(edgeHeadType);
+	    try {
+	      int relWeight = rel.getWeight() <= 0 ? 1 : rel.getWeight();
+	      Put put = new Put(relParent.getId());
+	      put.add(EdgeMemTable.FAMILY,relTypeCol,Bytes.toBytes(relWeight));
+	      edgeMemTable.put(put);
+	    } finally {
+	      closeHTable(edgeMemTable);
+	    }
+	}
   private static final int SALT_PARTITION_COUNT = 32;// TODO determine table
   // scalability
   private static final int SALT_PREFIX_BYTE_SZIE = 1;// one byte salt prefix

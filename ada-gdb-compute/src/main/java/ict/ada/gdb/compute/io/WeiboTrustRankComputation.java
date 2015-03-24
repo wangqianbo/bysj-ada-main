@@ -28,15 +28,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.giraph.Algorithm;
-import org.apache.giraph.aggregators.DoubleMaxAggregator;
-import org.apache.giraph.aggregators.DoubleMinAggregator;
-import org.apache.giraph.aggregators.LongSumAggregator;
 import org.apache.giraph.edge.Edge;
 import org.apache.giraph.edge.EdgeFactory;
 import org.apache.giraph.graph.BasicComputation;
 import org.apache.giraph.graph.Vertex;
-import org.apache.giraph.master.DefaultMasterCompute;
 import org.apache.giraph.worker.WorkerContext;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.FloatWritable;
@@ -50,9 +47,9 @@ import com.google.common.collect.Lists;
  * Demonstrates the basic Pregel PageRank implementation.
  */
 @Algorithm(
-    name = "Page rank"
+    name = "Trust rank"
 )
-public class WeiboTrustRankComputation extends BasicComputation<BytesWritable,PairWritable<FloatWritable,FloatWritable>, FloatWritable, FloatWritable> {
+public class WeiboTrustRankComputation extends BasicComputation<BytesWritable,FloatFloatPairWritable, FloatWritable, FloatWritable> {
   /** Number of supersteps for this test */
   public static final int MAX_SUPERSTEPS = 30;
   /** Logger */
@@ -68,39 +65,41 @@ public class WeiboTrustRankComputation extends BasicComputation<BytesWritable,Pa
 
   @Override
   public void compute(
-      Vertex<BytesWritable, PairWritable<FloatWritable,FloatWritable>, FloatWritable> vertex,
+      Vertex<BytesWritable, FloatFloatPairWritable, FloatWritable> vertex,
       Iterable<FloatWritable> messages) throws IOException {
     if (getSuperstep() >= 1) {
       float sum = 0;
       for (FloatWritable message : messages) {
         sum += message.get();
       }
-      PairWritable<FloatWritable,FloatWritable> vertexValue = vertex.getValue();
-      vertexValue.getValue2().set(vertexValue.getValue2().get()+sum);
+      FloatFloatPairWritable vertexValue = vertex.getValue();
+      vertexValue.getV1().set(vertexValue.getV2().get()+sum);
 //      Math.abs(paramDouble)
       vertex.setValue(vertexValue);
-      FloatWritable vertexCurValue = new FloatWritable(vertexValue.getValue1().get() + vertexValue.getValue2().get());
+      FloatWritable vertexCurValue = new FloatWritable(vertexValue.getV1().get() + vertexValue.getV2().get());
       aggregate(MAX_AGG,vertexCurValue );
       aggregate(MIN_AGG, vertexCurValue);
       aggregate(SUM_AGG, new LongWritable(1));
-      LOG.info(vertex.getId() + ": TrustRank=" + vertexValue +
-          " max=" + getAggregatedValue(MAX_AGG) +
-          " min=" + getAggregatedValue(MIN_AGG));
+      LOG.info(StringUtils.byteToHexString(Bytes.head(vertex.getId().getBytes(),vertex.getId().getLength())) + ": TrustRank=" +  vertexCurValue.get()
+    		  + " change = "+vertex.getValue().getV2().get());
     }
-    PairWritable<FloatWritable,FloatWritable> vertexValue = vertex.getValue();
-    if (getSuperstep() < MAX_SUPERSTEPS && Math.abs(vertexValue.getValue2().get()) >= GdbHBaseVertexInputFormat.CHANGESIGN) { // 此处可以提取出来，作为一个接口
+    FloatFloatPairWritable vertexValue = vertex.getValue();
+    if (getSuperstep() < MAX_SUPERSTEPS && Math.abs(vertexValue.getV2().get()) >= GdbHBaseVertexInputFormat.CHANGESIGN) { // 此处可以提取出来，作为一个接口
       loadEdgesIfNeed(vertex);
-      long edges = vertex.getNumEdges();
-      float change = vertexValue.getValue2().get();
-      sendMessageToAllEdges(vertex,new FloatWritable(change/ edges));
-      vertexValue.getValue1().set(vertexValue.getValue1().get() + change);
-      vertexValue.getValue2().set(0.0f);
+      int edges = vertex.getNumEdges();
+      LOG.info("Vertex Edges num = " + edges);
+      float change = vertexValue.getV2().get();
+      if(edges != 0){
+          sendMessageToAllEdges(vertex,new FloatWritable(change/ edges));
+      }
+      vertexValue.getV1().set(vertexValue.getV1().get() + change);
+      vertexValue.getV2().set(0.0f);
     } else {
       vertex.voteToHalt();
+      }
     }
-    }
-    private void loadEdgesIfNeed(Vertex<BytesWritable, PairWritable<FloatWritable,FloatWritable>, FloatWritable> vertex){
-    	if(vertex.getEdges().iterator().hasNext()) return;
+    private void loadEdgesIfNeed(Vertex<BytesWritable,FloatFloatPairWritable, FloatWritable> vertex){
+    	if(vertex.getNumEdges() !=0) return;
     	BytesWritable vertexId = vertex.getId();
     	byte[] id = Arrays.copyOf(vertexId.getBytes(), vertexId.getLength());
 		LOG.info("Add Node Id = " + StringUtils.byteToHexString(id));
@@ -120,7 +119,6 @@ public class WeiboTrustRankComputation extends BasicComputation<BytesWritable,Pa
 		}
 		vertex.setEdges(edges);
     }
-
   /**
    * Worker context used with {@link WeiboTrustRankComputation}.
    */
@@ -173,16 +171,14 @@ public class WeiboTrustRankComputation extends BasicComputation<BytesWritable,Pa
               getAggregatedValue(SUM_AGG) + ", should be: " +
               getTotalNumVertices());
         }
-        DoubleWritable maxPagerank = getAggregatedValue(MAX_AGG);
-        LOG.info("aggregatedMaxPageRank=" + maxPagerank.get());
-        DoubleWritable minPagerank = getAggregatedValue(MIN_AGG);
-        LOG.info("aggregatedMinPageRank=" + minPagerank.get());
+        FloatWritable maxTrustrank = getAggregatedValue(MAX_AGG);
+        LOG.info("aggregatedMaxPageRank=" + maxTrustrank.get());
+        FloatWritable minTrustrank = getAggregatedValue(MIN_AGG);
+        LOG.info("aggregatedMinPageRank=" + minTrustrank.get());
       }
     }
 
     @Override
     public void postSuperstep() { }
   }
-
- 
 }

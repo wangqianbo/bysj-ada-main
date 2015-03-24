@@ -11,6 +11,7 @@ import ict.ada.common.model.NodeType;
 import ict.ada.common.model.NodeType.Channel;
 import ict.ada.gdb.schema.CommunityPersonRelHTable;
 import ict.ada.gdb.schema.EdgeIdHTable;
+import ict.ada.gdb.schema.EdgeMemTable;
 import ict.ada.gdb.schema.EdgeRelWeightDetailHTable;
 import ict.ada.gdb.schema.EdgeRelWeightSumHTable;
 import ict.ada.gdb.schema.EventDocRelHTable;
@@ -19,6 +20,7 @@ import ict.ada.gdb.schema.LocationNodeTasksHTable;
 import ict.ada.gdb.schema.NodeAttributeHTable;
 import ict.ada.gdb.schema.NodeIdHTable;
 import ict.ada.gdb.schema.NodeNameHTable;
+import ict.ada.gdb.schema.NodeTaskHTable;
 import ict.ada.gdb.schema.NodeWdeRefsHTable;
 import ict.ada.gdb.schema.RelationTypeHTable;
 import ict.ada.gdb.schema.RelationWdeRefsHTable;
@@ -89,6 +91,14 @@ public class GdbHTablePool {
   public HTableInterface getLocationNodeTaskTable() {
     return pool.getTable(LocationNodeTasksHTable.getName());
   }
+  
+  public HTableInterface getNodeTaskTable(NodeType type){
+	  return pool.getTable(NodeTaskHTable.getName(type));
+  }
+  
+  public HTableInterface getNodeTaskTable(Channel channel){
+	  return pool.getTable(NodeTaskHTable.getName(channel));
+  }
 
   /*
    * Edge Tables
@@ -109,6 +119,13 @@ public class GdbHTablePool {
     return pool.getTable(EdgeRelWeightSumHTable.getName(headNodeType));
   }
 
+  public HTableInterface getEdgeMemTable(NodeType headNodeType){
+	 return pool.getTable(EdgeMemTable.getName(headNodeType));
+  }
+  
+  public  HTableInterface getEdgeMemTable(Channel channel){
+	  return pool.getTable(EdgeMemTable.getName(channel));
+  }
   /**
    * Non existent HTable names.<br>
    * ATTENTION: once a table name is added, we need a JVM restart to clear it.
