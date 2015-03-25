@@ -35,7 +35,6 @@ import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.worker.WorkerContext;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.BytesWritable;
-import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.util.StringUtils;
@@ -73,7 +72,7 @@ public class WeiboTrustRankComputation extends BasicComputation<BytesWritable,Fl
         sum += message.get();
       }
       FloatFloatPairWritable vertexValue = vertex.getValue();
-      vertexValue.getV1().set(vertexValue.getV2().get()+sum);
+      vertexValue.getV2().set(vertexValue.getV2().get()+sum);
 //      Math.abs(paramDouble)
       vertex.setValue(vertexValue);
       FloatWritable vertexCurValue = new FloatWritable(vertexValue.getV1().get() + vertexValue.getV2().get());
@@ -102,13 +101,13 @@ public class WeiboTrustRankComputation extends BasicComputation<BytesWritable,Fl
     	if(vertex.getNumEdges() !=0) return;
     	BytesWritable vertexId = vertex.getId();
     	byte[] id = Arrays.copyOf(vertexId.getBytes(), vertexId.getLength());
-		LOG.info("Add Node Id = " + StringUtils.byteToHexString(id));
+//		LOG.info("Add Node Id = " + StringUtils.byteToHexString(id));
         ict.ada.common.model.Node  node = new ict.ada.common.model.Node(id);
 		 RelQuerySpec.RelQuerySpecBuilder specBuilder = new RelQuerySpec.RelQuerySpecBuilder(node).attribute(node.getType().getAttribute());
 		RelationGraph edgeList = null;
 		try {
 			edgeList = adaGdbService.queryRelationGraph(specBuilder.build());
-			LOG.info("Result Size  = " + edgeList.getOuterNodes().size());
+//			LOG.info("Result Size  = " + edgeList.getOuterNodes().size());
 		} catch (GdbException e) {
 			throw new RuntimeException(e);
 		}

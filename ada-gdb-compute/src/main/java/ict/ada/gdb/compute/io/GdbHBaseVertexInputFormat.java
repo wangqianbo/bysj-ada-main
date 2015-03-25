@@ -19,8 +19,11 @@ import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.util.StringUtils;
+import org.apache.log4j.Logger;
 import org.javatuples.Pair;
 public class GdbHBaseVertexInputFormat extends HBaseVertexInputFormat<BytesWritable,FloatFloatPairWritable,FloatWritable>{
+	 /** Logger */
+	  private static final Logger LOG =Logger.getLogger(GdbHBaseVertexInputFormat.class);
 	public static final  AdaGdbService adaGdbService  = GdbVertexResolver.adaGdbService;
 	public static final String COMPUTATION = "TR";
 	public static final float INITIAL_VALUE = 1.0f;
@@ -74,6 +77,7 @@ public class GdbHBaseVertexInputFormat extends HBaseVertexInputFormat<BytesWrita
 		      vertexValue.setV2(new FloatWritable(variation));
 		      vertex = getConf().createVertex();
 		      vertex.initialize(new BytesWritable(result.getRow()),vertexValue);
+		      LOG.info("vertex's Value = ["+ vertex.getValue().getV1().get() + "," + vertex.getValue().getV2().get() +"]");
 	      } catch (Throwable t) {
 	        throw   new IllegalArgumentException(
 			          "Couldn't get vertex " + StringUtils.byteToHexString(result.getRow()), t);
